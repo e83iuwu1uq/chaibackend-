@@ -2,10 +2,12 @@
   "name": "youtubebackendproject",
   "version": "1.0.0",
   "description": "real industry base project of backend",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js"
   },
+
   "keywords": [
     "good",
     "and",
@@ -13,5 +15,8 @@
     "backend"
   ],
   "author": "gaurav",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
 }
