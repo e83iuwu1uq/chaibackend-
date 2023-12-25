@@ -253,14 +253,18 @@ const changeCurrentPassword = asyncHandler(async(req, res
 
         return res
         .status(200)
-        .json(new ApiResponse(200, {}, "Password changed successfully"))
+        .json(new ApiResponse(200, 
+            {}, 
+            "Password changed successfully"))
     })
 
 
 const getCurrentUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
-    .json(200, req.user, "current user fetched successfully ")
+    .json(200,
+         req.user,
+         "current user fetched successfully ")
 
 })
 // tip if you are making update controller make a seperate file
@@ -272,8 +276,8 @@ const updateAccountDetails = asyncHandler(async(req, res) =>{
         
     }
 
-    const user = User.findByIdAndUpdate(
-        req.user?.id,
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
         {
             $set: {
                 fullName,
@@ -363,6 +367,89 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
         new ApiError(200, user, "Cover image updated successfully")
     )
 })
+
+
+
+const getUserChannelProfile = asyncHandler(async(req,
+    
+res) => {
+    const {username} = req.params
+
+    if (!username?.trim()) {
+        throw new ApiError(400, "username is missing")
+
+    }
+
+    const channel = await User.aggregate([
+        {
+            $match: {
+                username: username?.toLowerCase()
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptios",
+                localField: "_id",
+                foreignField: "channel",
+                as : "subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptios",
+                localField: "_id",
+                foreignField: "subscriber",
+                as : "subscribedTo"
+
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "subscribers"
+                },
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                fullName: 1,
+                username: 1,
+                subscribersCount: 1, 
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1, 
+                coverImage: 1, 
+                emial: 1,
+                avatar: 1
+
+
+
+
+            }
+        }
+    ])
+
+    if (!channel?.length) {
+        throw new  ApiError(404, "channel does not exists")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, channel[0], "User channel fetched successfully")
+    )
+
+
+ })
 
 export {
     registerUser,
