@@ -7,7 +7,6 @@ import { loginUser,
         updateAccountDetails,
         updateUserAvatar,
         updateUserCoverImage,
-        getCurrentUser,
         getUserChannelProfile,
         getWatchHistory
 } from "../controllers/user.controller.js";

@@ -160,11 +160,11 @@ const loginUser = asyncHandler(async (req,res) =>{
 })
 
 const logoutUser = asyncHandler(async(req , res) => {
-    User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1 // this remove the field from document
             }
         },
         {
@@ -516,7 +516,8 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getWatchHistory
+    getWatchHistory,
+    getUserChannelProfile
 
     
 }
